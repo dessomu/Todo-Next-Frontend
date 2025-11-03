@@ -78,7 +78,7 @@ export default function Login() {
       // 3️⃣ Redirect after login
       router.push("/home");
     } catch (error) {
-      setError(error.message.substring(10, error.message.length));
+      setError(error.message.substring(0, error.message.length));
     }
   }
 
