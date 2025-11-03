@@ -145,7 +145,7 @@ export default function Home() {
   async function handleSignOut() {
     try {
       await signOut(auth);
-      await axios.post(`${API_URL}/logout `, {}, { withCredentials: true });
+      await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
       console.log("✅ Logged out successfully");
       window.location.href = "/login";
     } catch (error) {
