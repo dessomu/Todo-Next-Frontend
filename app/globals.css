@@ -1,0 +1,652 @@
+/* :root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+li {
+  margin-bottom: 5px;
+  padding: 5px;
+}
+input {
+  margin-right: 10px;
+}
+button {
+  margin-right: 5px;
+  margin-left: 5px;
+} */
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Container */
+.container {
+  width: 100dvw;
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  min-height: 500px;
+}
+
+/* Header Section */
+h1 {
+  font-size: 36px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Logout Button */
+#logout-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#logout-btn:hover {
+  background: #333;
+}
+
+/* Form Styles */
+form {
+  background: #fafafa;
+  padding: 24px;
+  border-radius: 6px;
+  margin: 30px 0;
+  border: 1px solid #e0e0e0;
+}
+
+form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+form input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border-color 0.2s ease;
+  margin-bottom: 14px;
+  background: white;
+}
+
+form input[type="text"]:focus {
+  outline: none;
+  border-color: #666;
+}
+
+form input[type="text"]::placeholder {
+  color: #999;
+}
+
+.add-todo {
+  width: 100%;
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.add-todo:hover {
+  background: #333;
+}
+
+/* Todos Section */
+.todos {
+  margin-top: 30px;
+}
+
+.todos ul {
+  list-style: none;
+}
+
+/* Todo Item - Keep checkbox and text on same line */
+.todo-item {
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.todo-item:hover {
+  border-color: #ccc;
+}
+
+.todo-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.todo-item span {
+  flex: 1;
+  font-size: 15px;
+  color: #333;
+  font-weight: 400;
+  word-break: break-word;
+}
+
+.todo-item button {
+  background: #f0f0f0;
+  color: #555;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.todo-item button:hover {
+  background: #e5e5e5;
+}
+
+.todo-item button:nth-of-type(1) {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.todo-item button:nth-of-type(1):hover {
+  background: #bbdefb;
+}
+
+.todo-item button:nth-of-type(2) {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.todo-item button:nth-of-type(2):hover {
+  background: #ffcdd2;
+}
+
+/* Edit Mode Styles */
+.todo-item label[for="edit-todo"] {
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.todo-item input[type="text"] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #666;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+}
+
+.todo-item input[type="text"]:focus {
+  outline: none;
+  border-color: #333;
+}
+
+.todo-item button:only-of-type {
+  background: #2e7d32;
+  color: white;
+  padding: 8px 18px;
+}
+
+.todo-item button:only-of-type:hover {
+  background: #1b5e20;
+}
+
+/* Empty State */
+.todos ul:empty::after {
+  content: "No todos yet. Add your first task above!";
+  display: block;
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 16px;
+}
+
+/* Responsive Design */
+
+/* Tablet Styles (768px and below) */
+@media (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+
+  .container {
+    padding: 30px 20px;
+  }
+
+  h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  button[onClick*="handleSignOut"] {
+    position: static;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  form {
+    padding: 20px;
+  }
+
+  .todo-item {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .todo-item span {
+    font-size: 14px;
+  }
+
+  .todo-item button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Mobile Styles (480px and below) */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    padding: 20px 15px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 18px;
+  }
+
+  form {
+    padding: 16px;
+  }
+
+  form label {
+    font-size: 13px;
+  }
+
+  form input[type="text"] {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .add-todo {
+    font-size: 14px;
+    padding: 11px 18px;
+  }
+
+  .todo-item {
+    padding: 10px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Keep checkbox and text on same line */
+  .todo-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
+
+  .todo-item span {
+    font-size: 14px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Buttons on new line */
+  .todo-item button {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .todo-item button:nth-of-type(1),
+  .todo-item button:nth-of-type(2) {
+    flex: 1;
+  }
+
+  /* Edit mode */
+  .todo-item label[for="edit-todo"] {
+    flex-basis: 100%;
+    margin-bottom: 6px;
+  }
+
+  .todo-item input[type="text"] {
+    flex-basis: 100%;
+    margin-bottom: 8px;
+  }
+
+  .todo-item button:only-of-type {
+    width: 100%;
+  }
+
+  .todos ul:empty::after {
+    font-size: 14px;
+    padding: 40px 15px;
+  }
+}
+
+/* Large Desktop (1200px and above) */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 900px;
+    padding: 50px;
+  }
+
+  h1 {
+    font-size: 40px;
+  }
+
+  form {
+    padding: 28px;
+  }
+
+  .todo-item {
+    padding: 16px 20px;
+  }
+
+  .todo-item span {
+    font-size: 16px;
+  }
+}
+
+/* login page css */
+/* Form Container */
+.form {
+  max-width: 450px;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+}
+
+/* Heading */
+.form h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.form br {
+  display: none;
+}
+
+/* Labels */
+.form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.form label:first-of-type {
+  margin-top: 0;
+}
+
+/* Input Fields */
+.form input[type="text"],
+.form input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border-color 0.2s ease;
+  background: white;
+  margin-bottom: 8px;
+}
+
+.form input[type="text"]:focus,
+.form input[type="password"]:focus {
+  outline: none;
+  border-color: #666;
+}
+
+.form input[type="text"]::placeholder,
+.form input[type="password"]::placeholder {
+  color: #999;
+}
+
+/* Buttons */
+.form button {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-top: 12px;
+}
+
+.signUp {
+  background: #1a1a1a;
+  color: white;
+}
+
+.signUp:hover {
+  background: #333;
+}
+
+.signIn {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.signIn:hover {
+  background: #e5e5e5;
+}
+
+/* Error Modal */
+.error-modal {
+  margin-top: 20px;
+  padding: 14px 16px;
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  border-radius: 6px;
+  color: #c62828;
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.error-modal button {
+  background: #2e7d32;
+  color: white;
+  padding: 8px 16px;
+  width: auto;
+  align-self: flex-end;
+  margin-top: 0;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.error-modal button:hover {
+  background: #1b5e20;
+}
+
+/* Responsive Design */
+
+/* Tablet Styles (768px and below) */
+@media (max-width: 768px) {
+  .form {
+    max-width: 400px;
+    padding: 30px 24px;
+  }
+
+  .form h3 {
+    font-size: 22px;
+    margin-bottom: 24px;
+  }
+
+  .form input[type="text"],
+  .form input[type="password"] {
+    font-size: 14px;
+    padding: 11px 13px;
+  }
+
+  .form button {
+    font-size: 14px;
+    padding: 11px 18px;
+  }
+}
+
+/* Mobile Styles (480px and below) */
+@media (max-width: 480px) {
+  body {
+    padding: 15px;
+  }
+
+  .form {
+    padding: 24px 20px;
+  }
+
+  .form h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form label {
+    font-size: 13px;
+    margin-top: 14px;
+  }
+
+  .form input[type="text"],
+  .form input[type="password"] {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .form button {
+    font-size: 14px;
+    padding: 10px 16px;
+    margin-top: 10px;
+  }
+
+  .error-modal {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  .error-modal button {
+    font-size: 13px;
+    padding: 7px 14px;
+  }
+}
+
+/* Large Desktop (1200px and above) */
+@media (min-width: 1200px) {
+  .form {
+    max-width: 500px;
+    padding: 50px;
+  }
+
+  .form h3 {
+    font-size: 26px;
+    margin-bottom: 35px;
+  }
+
+  .form input[type="text"],
+  .form input[type="password"] {
+    font-size: 16px;
+    padding: 13px 15px;
+  }
+
+  .form button {
+    font-size: 16px;
+    padding: 13px 22px;
+  }
+}
