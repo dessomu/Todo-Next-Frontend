@@ -77,7 +77,7 @@ export default function Login() {
       console.log(userLoggedIn);
 
       // 3️⃣ Redirect after login
-      router.push("/home");
+      window.location.href = "/home";
     } catch (error) {
       setError(error.message.substring(0, error.message.length));
     }
