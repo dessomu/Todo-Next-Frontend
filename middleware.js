@@ -8,7 +8,7 @@ export function middleware(req) {
   }
   // Has token but trying to go to login → send to home
   if (token && req.nextUrl.pathname === "/login") {
-    console.log("✅ Token found → redirecting to /home");
+    console.log("✅ Token found → redirecting to /home", token);
     return NextResponse.redirect(new URL("/home", req.url));
   }
   return NextResponse.next();
