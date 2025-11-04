@@ -69,11 +69,12 @@ export default function Login() {
       console.log(token);
 
       // 2️⃣ Send token to backend to create cookie
-      await axios.post(
+      const userLoggedIn = await axios.post(
         `${API_URL}/login`,
         { token },
         { withCredentials: true }
       );
+      console.log(userLoggedIn);
 
       // 3️⃣ Redirect after login
       router.push("/home");
