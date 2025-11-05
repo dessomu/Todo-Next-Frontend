@@ -153,6 +153,8 @@ export default function Home() {
     }
     setEmail("");
     setPassword("");
+    mutate([], false);
+    localStorage.removeItem("todos-cache");
   }
 
   return (
