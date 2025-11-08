@@ -8,12 +8,24 @@ import {
 } from "firebase/auth";
 
 import { LoginLogoutContext } from "@/context/LoginLogoutContext";
-import { useRouter } from "next/navigation";
 import axios from "axios";
 
 export default function Login() {
-  const router = useRouter();
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
+
+  // ✅ Helper: get token + session_marker
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("access_token");
+    const sessionMarker = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("session_marker="))
+      ?.split("=")[1];
+
+    return {
+      Authorization: `Bearer ${token}`,
+      "X-Session-Marker": sessionMarker,
+    };
+  };
 
   const { email, setEmail, password, setPassword, error, setError } =
     useContext(LoginLogoutContext);
@@ -34,15 +46,27 @@ export default function Login() {
       // 1️⃣ Get Firebase ID token
       const token = await user.getIdToken();
 
-      // 2️⃣ Send token to backend to create cookie
-      await axios.post(
+      //  Send token to backend to create JWT
+      const res = await axios.post(
         `${API_URL}/login`,
         { token },
-        { withCredentials: true }
+        { headers: getAuthHeaders() }
       );
 
-      // 3️⃣ Redirect after login
-      router.push("/home");
+      //  Backend responds with { jwt, session_marker }
+      const { jwt, session_marker } = res.data;
+
+      //  Store them client-side
+      localStorage.setItem("access_token", jwt);
+      document.cookie = `session_marker=${session_marker}; path=/; max-age=${
+        60 * 60 * 2
+      }; secure; samesite=strict`;
+
+      setEmail("");
+      setPassword("");
+
+      //  Redirect after login
+      window.location.href = "/home";
     } catch (error) {
       setError(error.message.substring(10, error.message.length));
       console.log(error);
@@ -64,19 +88,30 @@ export default function Login() {
       const user = userCredential.user;
       console.log("User logged in successfully", user);
 
-      // 1️⃣ Get Firebase ID token
+      //  Get Firebase ID token
       const token = await user.getIdToken();
       console.log(token);
 
-      // 2️⃣ Send token to backend to create cookie
-      const userLoggedIn = await axios.post(
+      //  Send token to backend to create JWT
+      const res = await axios.post(
         `${API_URL}/login`,
         { token },
-        { withCredentials: true }
+        { headers: getAuthHeaders() }
       );
-      console.log(userLoggedIn);
 
-      // 3️⃣ Redirect after login
+      //  Backend responds with { jwt, session_marker }
+      const { jwt, session_marker } = res.data;
+
+      //  Store them client-side
+      localStorage.setItem("access_token", jwt);
+      document.cookie = `session_marker=${session_marker}; path=/; max-age=${
+        60 * 60 * 2
+      }; secure; samesite=strict`;
+
+      setEmail("");
+      setPassword("");
+
+      //  Redirect after login
       window.location.href = "/home";
     } catch (error) {
       setError(error.message.substring(0, error.message.length));

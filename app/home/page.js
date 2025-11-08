@@ -1,61 +1,55 @@
 "use client";
-import { useState, useEffect, useMemo, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import useSWR from "swr";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { LoginLogoutContext } from "@/context/LoginLogoutContext";
 
-// ✅ fetcher function
-const fetcher = (url) =>
-  axios.get(url, { withCredentials: true }).then((r) => r.data);
-
 export default function Home() {
   const [todo, setTodo] = useState("");
   const { setEmail, setPassword } = useContext(LoginLogoutContext);
 
-  // 1️⃣ Prefill state from localStorage
-  const [todos, setTodos] = useState(() => {
-    try {
-      const cache = JSON.parse(localStorage.getItem("todos-cache"));
-      return Array.isArray(cache) ? cache : [];
-    } catch {
-      return [];
-    }
-  });
+  // ✅ Helper: get token + session_marker
+  const getAuthHeaders = () => {
+    if (typeof window === "undefined") return {};
+    const token = localStorage.getItem("access_token");
+    const sessionMarker = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("session_marker="))
+      ?.split("=")[1];
+
+    return {
+      Authorization: `Bearer ${token}`,
+      "X-Session-Marker": sessionMarker,
+    };
+  };
+
+  // 1️⃣ Prefill state from localStorage (instant render)
+  const [todos, setTodos] = useState([]);
 
   const [editTodoId, setEditTodoId] = useState(null);
   const [editTodo, setEditTodo] = useState("");
 
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
-  // 🧠 Read cached data synchronously from localStorage (no flicker)
-  const cachedTodos = useMemo(() => {
-    try {
-      const swrCache = localStorage.getItem("swr-cache");
-      if (!swrCache) return [];
-      const map = new Map(JSON.parse(swrCache));
-      const cached = map.get(API_URL);
-      return Array.isArray(cached) ? cached : [];
-    } catch {
-      return [];
-    }
-  }, [API_URL]);
-
-  // 2️⃣ SWR hook — background revalidation
-  const { data, mutate } = useSWR(API_URL, fetcher, {
-    fallbackData: todos,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    dedupingInterval: 1000 * 60 * 10,
-  });
 
   // 3️⃣ Whenever new data comes → update state + localStorage
   useEffect(() => {
-    if (data) {
-      setTodos(data);
-      localStorage.setItem("todos-cache", JSON.stringify(data));
-    }
-  }, [data]);
+    const fetchTodos = async () => {
+      try {
+        const res = await axios.get(`${API_URL}`, {
+          headers: getAuthHeaders(),
+        });
+        const fetchedTodos = res.data;
+        console.log(typeof fetchedTodos);
+
+        setTodos(fetchedTodos);
+      } catch (error) {
+        console.log("Error getting todos", error);
+      }
+    };
+    fetchTodos();
+  }, [API_URL]);
 
   const handleAddTodo = async (e) => {
     e.preventDefault();
@@ -65,11 +59,10 @@ export default function Home() {
       const res = await axios.post(
         `${API_URL}`,
         { todo },
-        { withCredentials: true }
+        { headers: getAuthHeaders() }
       );
 
-      // Instead of setTodos(), SWR ka mutate() use kar
-      mutate(res.data.todos, false); // update cache immediately, no re-fetch
+      setTodos(res.data.todos); // update cache immediately, no re-fetch
       setTodo("");
     } catch (error) {
       alert("❌ Axios Post Error");
@@ -85,11 +78,11 @@ export default function Home() {
   const deleteHandler = async (id) => {
     try {
       const res = await axios.delete(`${API_URL}/${id}`, {
-        withCredentials: true,
+        headers: getAuthHeaders(),
       });
 
       // updated todos after deleting
-      mutate(res.data.todos, false);
+      setTodos(res.data.todos); // update cache immediately, no re-fetch
     } catch (error) {
       alert("❌ Axios Delete Error");
       console.log("Error deleting todo", error);
@@ -101,18 +94,15 @@ export default function Home() {
 
     const todo = editTodo;
     const id = editTodoId;
-
     try {
       const res = await axios.put(
         `${API_URL}/${id}`,
         { todo },
-        {
-          withCredentials: true,
-        }
+        { headers: getAuthHeaders() }
       );
 
       // updated todos after updating
-      mutate(res.data.todos, false);
+      setTodos(res.data.todos); // update cache immediately, no re-fetch
       setEditTodo("");
       setEditTodoId(null);
     } catch (error) {
@@ -129,13 +119,11 @@ export default function Home() {
       const res = await axios.patch(
         `${API_URL}/${id}`,
         { completed: newStatus },
-        {
-          withCredentials: true,
-        }
+        { headers: getAuthHeaders() }
       );
 
       // updated todos after patching
-      mutate(res.data.todos, false);
+      setTodos(res.data.todos); // update cache immediately, no re-fetch
     } catch (error) {
       alert("❌ Axios Patch Error");
       console.log("Error patching todo", error);
@@ -143,10 +131,24 @@ export default function Home() {
   };
 
   async function handleSignOut() {
+    const session = document.cookie
+      .split("; ")
+      .find((r) => r.startsWith("session_marker="))
+      ?.split("=")[1];
+
     try {
       await signOut(auth);
-      await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
-      console.log("✅ Logged out successfully");
+      const loggedOutUser = await axios.post(`${API_URL}/logout`, {
+        session_marker: session,
+      });
+      console.log("✅ Logged out successfully", loggedOutUser);
+
+      // removed jwt access_token and cookie with session marker from localstorage
+      localStorage.removeItem("access_token");
+
+      document.cookie =
+        "session_marker=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+
       window.location.href = "/login";
     } catch (error) {
       console.log(error.message);

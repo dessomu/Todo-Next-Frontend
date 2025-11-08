@@ -1,9 +1,13 @@
 // app/page.js
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-function page() {
-  redirect("/login");
-  return <div>page</div>;
-}
+export default async function Page() {
+  const token = await cookies().get("session_marker")?.value;
 
-export default page;
+  if (token) {
+    redirect("/home"); // logged in → /home
+  } else {
+    redirect("/login"); // not logged in → /login
+  }
+}
