@@ -29,14 +29,18 @@ export default function Home() {
   const [editTodoId, setEditTodoId] = useState(null);
   const [editTodo, setEditTodo] = useState("");
 
+  const [loading, setLoading] = useState(true);
+
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
   // Generate temporary ID for optimistic updates
-  const generateTempId = () => `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const generateTempId = () =>
+    `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
   // Fetch todos on mount and sync with server
   useEffect(() => {
     const fetchTodos = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`${API_URL}`, {
           headers: getAuthHeaders(),
@@ -45,6 +49,8 @@ export default function Home() {
         setTodos(fetchedTodos);
       } catch (error) {
         console.log("Error getting todos", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchTodos();
@@ -223,7 +229,18 @@ export default function Home() {
       </form>
       <div className="todos">
         <ul>
-          {todos.map((todo) => {
+          {loading && Array.from({ length: 3 }).map((_, i) => (
+            <div className="todo-skeleton" key={i}>
+              <div className="skeleton checkbox" />
+              <div className="skeleton text" />
+              <div className="skeleton btn" />
+              <div className="skeleton btn delete" />
+            </div>
+          ))}
+          {!loading && todos.length === 0 && (
+            <li className="empty-state">No todos yet. Add your first task above!</li>
+          )}
+          {!loading && todos.map((todo) => {
             return (
               <li key={todo._id} className="todo-item">
                 {editTodoId !== todo._id ? (

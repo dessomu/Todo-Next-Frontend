@@ -1,58 +1,3 @@
-/* :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
-li {
-  margin-bottom: 5px;
-  padding: 5px;
-}
-input {
-  margin-right: 10px;
-}
-button {
-  margin-right: 5px;
-  margin-left: 5px;
-} */
-
-/* Reset and Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -275,9 +220,18 @@ form input[type="text"]::placeholder {
   background: #1b5e20;
 }
 
+/* Loading State */
+.loading-state {
+  display: block;
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 /* Empty State */
-.todos ul:empty::after {
-  content: "No todos yet. Add your first task above!";
+.empty-state {
   display: block;
   text-align: center;
   padding: 60px 20px;
@@ -655,5 +609,61 @@ form input[type="text"]::placeholder {
   .form button {
     font-size: 16px;
     padding: 13px 22px;
+  }
+}
+
+/* loading skeleton css */
+.todo-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 25%,
+    #e5e7eb 37%,
+    #f3f4f6 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.7s ease infinite;
+  border-radius: 4px;
+}
+
+.skeleton.checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+.skeleton.text {
+  flex: 1;
+  height: 14px;
+}
+
+.skeleton.btn {
+  width: 48px;
+  height: 24px;
+}
+
+.skeleton.btn.delete {
+  background: linear-gradient(
+    90deg,
+    #fee2e2 25%,
+    #fecaca 37%,
+    #fee2e2 63%
+  );
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
   }
 }
