@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import useSWR from "swr";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { LoginLogoutContext } from "@/context/LoginLogoutContext";
@@ -10,7 +9,7 @@ export default function Home() {
   const [todo, setTodo] = useState("");
   const { setEmail, setPassword } = useContext(LoginLogoutContext);
 
-  // ✅ Helper: get token + session_marker
+  // Helper: get token + session_marker
   const getAuthHeaders = () => {
     if (typeof window === "undefined") return {};
     const token = localStorage.getItem("access_token");
@@ -25,7 +24,6 @@ export default function Home() {
     };
   };
 
-  // 1️⃣ Prefill state from localStorage (instant render)
   const [todos, setTodos] = useState([]);
 
   const [editTodoId, setEditTodoId] = useState(null);
@@ -33,7 +31,10 @@ export default function Home() {
 
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
-  // 3️⃣ Whenever new data comes → update state + localStorage
+  // Generate temporary ID for optimistic updates
+  const generateTempId = () => `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+  // Fetch todos on mount and sync with server
   useEffect(() => {
     const fetchTodos = async () => {
       try {
@@ -41,8 +42,6 @@ export default function Home() {
           headers: getAuthHeaders(),
         });
         const fetchedTodos = res.data;
-        console.log(typeof fetchedTodos);
-
         setTodos(fetchedTodos);
       } catch (error) {
         console.log("Error getting todos", error);
@@ -53,19 +52,33 @@ export default function Home() {
 
   const handleAddTodo = async (e) => {
     e.preventDefault();
-    if (!todo) return;
+    if (!todo.trim()) return;
+
+    // Create optimistic todo with temp ID
+    const tempId = generateTempId();
+    const optimisticTodo = {
+      _id: tempId,
+      todo: todo,
+      completed: false,
+    };
+
+    // Update UI immediately
+    setTodos((prev) => [...prev, optimisticTodo]);
+    setTodo("");
 
     try {
       const res = await axios.post(
         `${API_URL}`,
-        { todo },
+        { todo: optimisticTodo.todo },
         { headers: getAuthHeaders() }
       );
 
-      setTodos(res.data.todos); // update cache immediately, no re-fetch
-      setTodo("");
+      // Sync with server response - replace optimistic data with real data
+      setTodos(res.data.todos);
     } catch (error) {
-      alert("❌ Axios Post Error");
+      // Rollback: remove the optimistic todo
+      setTodos((prev) => prev.filter((t) => t._id !== tempId));
+      alert("❌ Failed to add todo. Please try again.");
       console.log("Error adding todo", error);
     }
   };
@@ -76,37 +89,57 @@ export default function Home() {
   };
 
   const deleteHandler = async (id) => {
+    // Save current state for rollback
+    const previousTodos = [...todos];
+
+    // Update UI immediately - remove the todo
+    setTodos((prev) => prev.filter((t) => t._id !== id));
+
     try {
       const res = await axios.delete(`${API_URL}/${id}`, {
         headers: getAuthHeaders(),
       });
 
-      // updated todos after deleting
-      setTodos(res.data.todos); // update cache immediately, no re-fetch
+      // Sync with server response
+      setTodos(res.data.todos);
     } catch (error) {
-      alert("❌ Axios Delete Error");
+      // Rollback: restore the deleted todo
+      setTodos(previousTodos);
+      alert("❌ Failed to delete todo. Please try again.");
       console.log("Error deleting todo", error);
     }
   };
 
   const updateHandler = async () => {
-    if (!editTodo || !editTodoId) return;
+    if (!editTodo.trim() || !editTodoId) return;
 
-    const todo = editTodo;
+    // Save current state for rollback
+    const previousTodos = [...todos];
+    const todoText = editTodo;
     const id = editTodoId;
+
+    // Update UI immediately
+    setTodos((prev) =>
+      prev.map((t) => (t._id === id ? { ...t, todo: todoText } : t))
+    );
+    setEditTodo("");
+    setEditTodoId(null);
+
     try {
       const res = await axios.put(
         `${API_URL}/${id}`,
-        { todo },
+        { todo: todoText },
         { headers: getAuthHeaders() }
       );
 
-      // updated todos after updating
-      setTodos(res.data.todos); // update cache immediately, no re-fetch
-      setEditTodo("");
-      setEditTodoId(null);
+      // Sync with server response
+      setTodos(res.data.todos);
     } catch (error) {
-      alert("❌ Axios Put Error");
+      // Rollback: restore original todos
+      setTodos(previousTodos);
+      setEditTodoId(id);
+      setEditTodo(todoText);
+      alert("❌ Failed to update todo. Please try again.");
       console.log("Error updating todo", error);
     }
   };
@@ -115,6 +148,14 @@ export default function Home() {
     const id = todo._id;
     const newStatus = !todo.completed;
 
+    // Save current state for rollback
+    const previousTodos = [...todos];
+
+    // Update UI immediately
+    setTodos((prev) =>
+      prev.map((t) => (t._id === id ? { ...t, completed: newStatus } : t))
+    );
+
     try {
       const res = await axios.patch(
         `${API_URL}/${id}`,
@@ -122,10 +163,12 @@ export default function Home() {
         { headers: getAuthHeaders() }
       );
 
-      // updated todos after patching
-      setTodos(res.data.todos); // update cache immediately, no re-fetch
+      // Sync with server response
+      setTodos(res.data.todos);
     } catch (error) {
-      alert("❌ Axios Patch Error");
+      // Rollback: restore original completed status
+      setTodos(previousTodos);
+      alert("❌ Failed to update todo status. Please try again.");
       console.log("Error patching todo", error);
     }
   };
@@ -155,7 +198,6 @@ export default function Home() {
     }
     setEmail("");
     setPassword("");
-    mutate([], false);
     localStorage.removeItem("todos-cache");
   }
 

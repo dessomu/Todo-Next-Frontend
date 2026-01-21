@@ -295,6 +295,7 @@ form input[type="text"]::placeholder {
 
   .container {
     padding: 30px 20px;
+    margin: 0;
   }
 
   h1 {
@@ -335,6 +336,7 @@ form input[type="text"]::placeholder {
 
   .container {
     padding: 20px 15px;
+    margin: 0;
   }
 
   h1 {
@@ -415,6 +417,7 @@ form input[type="text"]::placeholder {
   .container {
     max-width: 900px;
     padding: 50px;
+    margin: 0 0;
   }
 
   h1 {
@@ -565,6 +568,7 @@ form input[type="text"]::placeholder {
   .form {
     max-width: 400px;
     padding: 30px 24px;
+    margin-top: 4rem;
   }
 
   .form h3 {
@@ -588,10 +592,13 @@ form input[type="text"]::placeholder {
 @media (max-width: 480px) {
   body {
     padding: 15px;
+    justify-content: center;
   }
 
   .form {
+    width: 80%;
     padding: 24px 20px;
+    margin-top: -1rem;
   }
 
   .form h3 {
@@ -600,19 +607,19 @@ form input[type="text"]::placeholder {
   }
 
   .form label {
-    font-size: 13px;
-    margin-top: 14px;
+    font-size: 0.8rem;
+    margin-top: 10px;
   }
 
   .form input[type="text"],
   .form input[type="password"] {
     font-size: 14px;
-    padding: 10px 12px;
+    padding: 8px 10px;
   }
 
   .form button {
     font-size: 14px;
-    padding: 10px 16px;
+    padding: 8px 12px;
     margin-top: 10px;
   }
 
