@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export function middleware(req) {
+export function proxy(req) {
   const session = req.cookies.get("session_marker")?.value;
   console.log("middlewre hits now", session);
 
